@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Productivity Dashboard</title>
+    
+    <style>
+        /* Variabel Warna untuk Tema Terang dan Gelap */
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --accent-color: #4a90e2;
+            --border-color: #e0e0e0;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1e1e2e;
+            --card-bg: #2b2b3c;
+            --text-color: #f5f5f5;
+            --accent-color: #ff79c6;
+            --border-color: #44475a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Tombol Tema */
+        .btn-theme {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-weight: bold;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin-top: 40px;
+        }
+
+        /* Greeting Section */
+        .greeting-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .greeting-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+
+        #date-time {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .name-input-container {
+            margin: 10px 0;
+        }
+
+        /* Layout Grid Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* Desain Card */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .card h2 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        /* Input & Button Umum */
+        input[type="text"], input[type="url"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* Timer Style */
+        .timer-display {
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .timer-settings {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .timer-settings input {
+            width: 70px;
+            margin: 0;
+            text-align: center;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .btn-start { background-color: var(--success-color); }
+        .btn-stop { background-color: #f39c12; }
+        .btn-reset { background-color: var(--danger-color); }
+
+        /* To-Do List Style */
+        #todo-form {
+            display: flex;
+            gap: 10px;
+        }
+        #todo-form input { flex: 1; margin: 0; }
+
+        #todo-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        #todo-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        #todo-list li.done span {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        .todo-actions button {
+            padding: 4px 8px;
+            margin-left: 5px;
+            font-size: 0.8rem;
+        }
+
+        .btn-del { background-color: var(--danger-color); }
+        .btn-done { background-color: var(--success-color); }
+
+        .error-msg {
+            color: var(--danger-color);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        /* Quick Links Style */
+        #link-form button { width: 100%; }
+        .links-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .link-btn-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 5px 10px;
+        }
+
+        .link-btn-wrapper a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .btn-del-link {
+            background: transparent;
+            color: var(--danger-color);
+            padding: 2px 5px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <button id="theme-toggle" class="btn-theme">🌙 Mode Gelap</button>
+
+    <div class="container">
+        <header class="greeting-section">
+            <h1 id="greeting">Halo, Selamat Datang!</h1>
+            <div class="name-input-container">
+                <input type="text" id="username-input" placeholder="Masukkan namamu...">
+                <button id="save-name-btn">Simpan Nama</button>
+            </div>
+            <p id="date-time"></p>
+        </header>
+
+        <main class="dashboard-grid">
+            <section class="card timer-card">
+                <h2>⏱️ Focus Timer</h2>
+                <div class="timer-display" id="timer-display">25:00</div>
+                
+                <div class="timer-settings">
+                    <input type="number" id="custom-time-input" min="1" max="60" value="25">
+                    <label for="custom-time-input">menit</label>
+                    <button id="set-time-btn">Atur</button>
+                </div>
+
+                <div class="timer-controls">
+                    <button id="start-btn" class="btn-start">Mulai</button>
+                    <button id="stop-btn" class="btn-stop">Berhenti</button>
+                    <button id="reset-btn" class="btn-reset">Reset</button>
+                </div>
+            </section>
+
+            <section class="card todo-card">
+                <h2>📝 To-Do List</h2>
+                <form id="todo-form">
+                    <input type="text" id="todo-input" placeholder="Tambah tugas baru..." required>
+                    <button type="submit">Tambah</button>
+                </form>
+                <p id="todo-error" class="error-msg" style="display: none;">Tugas ini sudah ada!</p>
+                <ul id="todo-list"></ul>
+            </section>
+
+            <section class="card links-card">
+                <h2>🔗 Quick Links</h2>
+                <form id="link-form">
+                    <input type="text" id="link-name" placeholder="Nama Situs (ex: Google)" required>
+                    <input type="url" id="link-url" placeholder="URL (ex: https://google.com)" required>
+                    <button type="submit">Tambah Link</button>
+                </form>
+                <div id="links-container" class="links-container"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // --- KELOLA DATA LOCAL STORAGE ---
+        let todos = JSON.parse(localStorage.getItem('todos')) || [];
+        let quickLinks = JSON.parse(localStorage.getItem('quickLinks')) || [];
+        let savedName = localStorage.getItem('username') || '';
+        let currentTheme = localStorage.getItem('theme') || 'light';
+
+        // --- INSIALISASI TEMA & APPLIKASI ---
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.innerText = currentTheme === 'dark' ? '☀️ Mode Terang' : '🌙 Mode Gelap';
+
+        // --- WAKTU JAM & GREETING ---
+        function updateGreetingAndTime() {
+            const now = new Date();
+            
+            // Format Waktu & Tanggal Bahasa Indonesia
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateString = now.toLocaleDateString('id-ID', options);
+            document.getElementById('date-time').innerText = `${dateString} | ${timeString}`;
+
+            // Logika Greeting berdasarkan Jam
+            const hour = now.getHours();
+            let greetingText = 'Selamat Malam';
+            if (hour >= 5 && hour < 11) greetingText = 'Selamat Pagi';
+            else if (hour >= 11 && hour < 15) greetingText = 'Selamat Siang';
+            else if (hour >= 15 && hour < 18) greetingText = 'Selamat Sore';
+
+            const displayName = savedName ? `, ${savedName}!` : '!';
+            document.getElementById('greeting').innerText = `✨ ${greetingText}${displayName}`;
+        }
+        setInterval(updateGreetingAndTime, 1000);
+        updateGreetingAndTime();
+
+        // Simpan Nama Kustom
+        document.getElementById('save-name-btn').addEventListener('click', () => {
+            const nameInput = document.getElementById('username-input').value.trim();
+            if (nameInput) {
+                savedName = nameInput;
+                localStorage.setItem('username', savedName);
+                updateGreetingAndTime();
+                document.getElementById('username-input').value = '';
+            }
+        });
+
+        // Fitur Ganti Tema
+        themeToggle.addEventListener('click', () => {
+            let theme = document.documentElement.getAttribute('data-theme');
+            let newTheme = theme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeToggle.innerText = newTheme === 'dark' ? '☀️ Mode Terang' : '🌙 Mode Gelap';
+        });
+
+
+        // --- FOCUS TIMER / POMODORO ---
+        let timerInterval;
+        let isRunning = false;
+        let totalSeconds = 25 * 60; 
+
+        const timerDisplay = document.getElementById('timer-display');
+        const customTimeInput = document.getElementById('custom-time-input');
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            timerDisplay.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        document.getElementById('set-time-btn').addEventListener('click', () => {
+            if (!isRunning) {
+                const newMinutes = parseInt(customTimeInput.value);
+                if (newMinutes > 0 && newMinutes <= 60) {
+                    totalSeconds = newMinutes * 60;
+                    updateTimerDisplay();
+                }
+            }
+        });
+
+        document.getElementById('start-btn').addEventListener('click', () => {
+            if (!isRunning) {
+                isRunning = true;
+                timerInterval = setInterval(() => {
+                    if (totalSeconds > 0) {
+                        totalSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        isRunning = false;
+                        alert('Waktu fokus selesai! Istirahat sejenak.');
+                    }
+                }, 1000);
+            }
+        });
+
+        document.getElementById('stop-btn').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            isRunning = false;
+        });
+
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            isRunning = false;
+            totalSeconds = parseInt(customTimeInput.value) * 60 || 25 * 60;
+            updateTimerDisplay();
+        });
+
+
+        // --- TO-DO LIST ---
+        const todoForm = document.getElementById('todo-form');
+        const todoInput = document.getElementById('todo-input');
+        const todoList = document.getElementById('todo-list');
+        const todoError = document.getElementById('todo-error');
+
+        function renderTodos() {
+            todoList.innerHTML = '';
+            todos.forEach((todo, index) => {
+                const li = document.createElement('li');
+                if (todo.done) li.classList.add('done');
+
+                li.innerHTML = `
+                    <span>${todo.text}</span>
+                    <div class="todo-actions">
+                        <button class="btn-done" onclick="toggleTodo(${index})">✓</button>
+                        <button class="btn-del" onclick="deleteTodo(${index})">✕</button>
+                    </div>
+                `;
+                todoList.appendChild(li);
+            });
+        }
+
+        todoForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const taskText = todoInput.value.trim();
+            
+            // Deteksi Duplikat Tugas
+            const isDuplicate = todos.some(todo => todo.text.toLowerCase() === taskText.toLowerCase());
+            if (isDuplicate) {
+                todoError.style.display = 'block';
+                return;
+            }
+            todoError.style.display = 'none';
+
+            if (taskText) {
+                todos.push({ text: taskText, done: false });
+                localStorage.setItem('todos', JSON.stringify(todos));
+                renderTodos();
+                todoInput.value = '';
+            }
+        });
+
+        window.toggleTodo = (index) => {
+            todos[index].done = !todos[index].done;
+            localStorage.setItem('todos', JSON.stringify(todos));
+            renderTodos();
+        };
+
+        window.deleteTodo = (index) => {
+            todos.splice(index, 1);
+            localStorage.setItem('todos', JSON.stringify(todos));
+            renderTodos();
+        };
+
+
+        // --- QUICK LINKS ---
+        const linkForm = document.getElementById('link-form');
+        const linksContainer = document.getElementById('links-container');
+
+        function renderLinks() {
+            linksContainer.innerHTML = '';
+            quickLinks.forEach((link, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'link-btn-wrapper';
+                wrapper.innerHTML = `
+                    <a href="${link.url}" target="_blank">🌐 ${link.name}</a>
+                    <button class="btn-del-link" onclick="deleteLink(${index})">✕</button>
+                `;
+                linksContainer.appendChild(wrapper);
+            });
+        }
+
+        linkForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('link-name').value.trim();
+            const url = document.getElementById('link-url').value.trim();
+
+            if (name && url) {
+                quickLinks.push({ name, url });
+                localStorage.setItem('quickLinks', JSON.stringify(quickLinks));
+                renderLinks();
+                linkForm.reset();
+            }
+        });
+
+        window.deleteLink = (index) => {
+            quickLinks.splice(index, 1);
+            localStorage.setItem('quickLinks', JSON.stringify(quickLinks));
+            renderLinks();
+        };
+
+        // Render Awal saat Halaman Dimuat
+        renderTodos();
+        renderLinks();
+    </script>
+</body>
+</html>
